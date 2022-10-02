@@ -1,5 +1,5 @@
 # time-inverter-prototype
-This is a prototype of a game which inverts time. Using stacks in java from `java.util.Stack` every movement played by the player is recorded and pushed to the stack. The x coordinate followed by the why coordinate is pushed to it if the timing is not inverted. On time inversion, a rectangle is drawn from the variables of the stack by popping them (y first and then x).
+This is a prototype of a game which inverts time. Using stacks in java from `java.util.Stack` every movement played by the player is recorded and pushed to the stack. If not inverted, the x coordinate followed by the y coordinate is pushed to the stack. On time inversion, a rectangle is drawn from the variables of the stack by popping them (y first and then x).
 ```java
 private static Stack<Integer> positions = new Stack<>();
 .....
