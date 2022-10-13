@@ -17,9 +17,13 @@ public class Main {
     private static JFrame frame;
     private static Canvas canvas;
     private static Position p = new Position();
-    private static int[] level = {-200, -80, 100, 50};
+    private static int[] level = 
+    {-260, 90, 520, 10};
     private static Stack<Integer> positions = new Stack<>();
     private static boolean inverted = false;
+    public static int time = 0;
+    public static int[] positionsX = new int[0];
+    public static int[] positionsY = new int[0];
 
     public static void main(String args[]) {
         frame = new JFrame();
@@ -29,7 +33,6 @@ public class Main {
         canvas.setBackground(BG_COLOR);
 
         frame.setLocation(200, 50);
-        frame.setTitle("Time Inverter [Class 10] Project");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
 
@@ -38,10 +41,13 @@ public class Main {
         frame.setVisible(true);
 
         canvas.addKeyListener(new GameKeyListener(p));
+        frame.requestFocus();
+        canvas.requestFocusInWindow();
 
         while(true) {
             try {
                 Thread.sleep(1000/60);
+                frame.setTitle("Time Inverter | " + (inverted ? "Remaining" : "Elapsed") + "Time: "+time/60+"s");
             }
             catch (java.lang.InterruptedException ie) {
                 ie.printStackTrace();
@@ -58,35 +64,47 @@ public class Main {
         g.clearRect(0, 0, 700, 550);
         if(p.getX() <= 190 && p.getX() >= 110 && p.getY() >= 40 && p.getY() <= 70){
             inverted = inverted ? false : true;
+
+            positionsX = new int[time];
+            positionsY = new int[time];
+            Stack<Integer> temp = new Stack<Integer>();
+            for(int i = 0;i < time*2;i++){
+                temp.push(positions.pop());
+            }
+            for(int i = 0;i < time;i++){
+                positionsX[i] = temp.pop();
+                positionsY[i] = temp.pop();
+            }
             p.reset();
         }
-
+        fillRectangle(g, -200, -80, 100, 50, BG_2_COLOR);
         for(int i = 0;i < level.length;i+=4) {
             fillRectangle(g, level[i], level[i+1], level[i+2], level[i+3], FG_2_COLOR);
         }
-        g.setColor(BG_2_COLOR);
+        g.setColor(FG_COLOR);
         g.fillRect(340, 265, 20, 20);
         if(inverted) {
-            int tempy = positions.pop();
-            fillRectangle(g, -positions.pop()-10, -tempy-10, 20, 20, BG_2_COLOR);
+            time--;
+            fillRectangle(g, -positionsX[time]-10, -positionsY[time]-10, 20, 20, FG_COLOR);
         }else{
+            time++;
             positions.push(p.getX());
             positions.push(p.getY());
         }
     }
 
     private static void drawRectangle(Graphics g, int x, int y, int width, int height, Color c){
-        g.setColor(FG_COLOR);
+        g.setColor(c);
         g.drawRect(350+x+p.getX(), 275+y+p.getY(), width, height);
     }
 
     private static void fillRectangle(Graphics g, int x, int y, int width, int height, Color c){
-        g.setColor(FG_COLOR);
+        g.setColor(c);
         g.fillRect(350+x+p.getX(), 275+y+p.getY(), width, height);
     }
 
     private static void staticFillRectangle(Graphics g, int x, int y, int width, int height, Color c){
-        g.setColor(FG_COLOR);
+        g.setColor(c);
         g.fillRect(x, y, width, height);
     }
 }
@@ -137,7 +155,7 @@ class Position {
     public int getY(){
         return this.y;
     }
-    
+
     public void reset(){
         this.x = 0;
         this.y = 0;
