@@ -17,13 +17,16 @@ public class Main {
     private static JFrame frame;
     private static Canvas canvas;
     private static Position p = new Position();
-    private static int[] level = 
-    {-260, 90, 520, 10};
+    public static int[] level = 
+        {-260, -100, 520, 40};
     private static Stack<Integer> positions = new Stack<>();
     private static boolean inverted = false;
     public static int time = 0;
+    public static int FPS = 60;
     public static int[] positionsX = new int[0];
     public static int[] positionsY = new int[0];
+
+    public static long frameTime = 0;
 
     public static void main(String args[]) {
         frame = new JFrame();
@@ -45,13 +48,7 @@ public class Main {
         canvas.requestFocusInWindow();
 
         while(true) {
-            try {
-                Thread.sleep(1000/60);
-                frame.setTitle("Time Inverter | " + (inverted ? "Remaining" : "Elapsed") + "Time: "+time/60+"s");
-            }
-            catch (java.lang.InterruptedException ie) {
-                ie.printStackTrace();
-            }
+            frameTime = System.currentTimeMillis();
             handleGraphics();
         }
     }
@@ -62,7 +59,7 @@ public class Main {
         Graphics g = canvas.getGraphics();
 
         g.clearRect(0, 0, 700, 550);
-        if(p.getX() <= 190 && p.getX() >= 110 && p.getY() >= 40 && p.getY() <= 70){
+        if(p.getX() <= 200 && p.getX() >= 100 && p.getY() >= 30 && p.getY() <= 80){
             inverted = inverted ? false : true;
 
             positionsX = new int[time];
@@ -91,6 +88,20 @@ public class Main {
             positions.push(p.getX());
             positions.push(p.getY());
         }
+
+        drawProgress(g, time, 1200);
+
+        try {
+            long drawingTime = System.currentTimeMillis() - frameTime;
+            frame.setTitle("Time Inverter | " + (inverted ? "Remaining" : "Elapsed") + "Time: "+time/60+"s");
+            Thread.sleep((1000/FPS)-drawingTime);
+        }
+        catch (InterruptedException ie) {
+            ie.printStackTrace();
+        }
+        catch (IllegalArgumentException iae) {
+            FPS -= 5;
+        }
     }
 
     private static void drawRectangle(Graphics g, int x, int y, int width, int height, Color c){
@@ -106,6 +117,21 @@ public class Main {
     private static void staticFillRectangle(Graphics g, int x, int y, int width, int height, Color c){
         g.setColor(c);
         g.fillRect(x, y, width, height);
+    }
+
+    private static void drawProgress(Graphics g, int c, int total){
+        g.setColor(BG_2_COLOR);
+        g.fillRect(0, 0, 700, 100);
+        g.setColor(Color.CYAN);
+        int percentCompleted = (int)(c/(double)(total)*100);
+        percentCompleted = percentCompleted > 100 ? 100 : percentCompleted;
+        for(int i = 0;i <= percentCompleted;i++) {
+            g.fillRect(25+(i*5), 25, 3, 5);
+        }
+        g.setColor(Color.GRAY);
+        for(int i = percentCompleted+1;i <= 100;i++) {
+            g.fillRect(25+(i*5), 25, 3, 5);
+        }
     }
 }
 class GameKeyListener implements KeyListener {
@@ -144,8 +170,15 @@ class Position {
     private int x = 0;
     private int y = 0;
     public void moveBy(int x,int y){
+        int[] level = Main.level;
         this.x += x;
         this.y += y;
+        for(int i = 0;i < level.length;i+=4){
+            if(level[i]+this.x-10 < 0 && level[i]+this.x+10 > 0-level[i+2] && level[i+1]+this.y-10 < 0 && level[i+1]+this.y+10 > 0-level[i+3]) {
+                this.x -= x;
+                this.y -= y;
+            }
+        }
     }
 
     public int getX(){
