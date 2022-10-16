@@ -1,4 +1,37 @@
-# time-inverter-prototype
+# time-inverter
+
+## Alpha-1.1.0
+A collision code was built into the game. In the `moveBy` function of the `Position` class, the x and y variables are only editted if no collisions occur with any thing in the level array.
+```java
+int[] level = Main.level;
+this.x += x;
+this.y += y;
+for(int i = 0;i < level.length;i+=4){
+  if(level[i]+this.x-10 < 0 && level[i]+this.x+10 > 0-level[i+2] && level[i+1]+this.y-10 < 0 && level[i+1]+this.y+10 > 0-level[i+3]) {
+    this.x -= x;
+    this.y -= y;
+  }
+}
+```
+The code for the neat looking timer is as follows:
+```java
+private static void drawProgress(Graphics g, int c, int total){
+  g.setColor(BG_2_COLOR);
+  g.fillRect(0, 0, 700, 100);
+  g.setColor(Color.CYAN);
+  int percentCompleted = (int)(c/(double)(total)*100);
+  percentCompleted = percentCompleted > 100 ? 100 : percentCompleted;
+  for(int i = 0;i <= percentCompleted;i++) {
+    g.fillRect(25+(i*5), 25, 3, 5);
+  }
+  g.setColor(Color.GRAY);
+  for(int i = percentCompleted+1;i <= 100;i++) {
+    g.fillRect(25+(i*5), 25, 3, 5);
+  }
+}
+```
+
+## History
 ## Prototype 1
 This is a prototype of a game which inverts time. Using stacks in java from `java.util.Stack` every movement played by the player is recorded and pushed to the stack. If not inverted, the x coordinate followed by the y coordinate is pushed to the stack. On time inversion, a rectangle is drawn from the variables of the stack by popping them (y first and then x).
 ```java
