@@ -1,7 +1,6 @@
 import javax.swing.JFrame;
 
 import java.awt.Color;
-import java.awt.Canvas;
 import java.awt.Graphics;
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
@@ -13,40 +12,35 @@ public class Main {
     static final Color FG_COLOR = new Color(231, 246, 242);
     static final Color BG_2_COLOR = new Color(57, 91, 100);
     static final Color FG_2_COLOR = new Color(165, 201, 202);
-
     private static JFrame frame;
-    private static Canvas canvas;
+    private static Graphics g;
     private static Position p = new Position();
     public static int[] level = 
-        {-260, -100, 520, 40};
+        {-250, -300, 30, 600,
+            250, -300, 30, 600,
+            -250, -300, 500, 30,
+            -250, 300, 530, 30};
     private static Stack<Integer> positions = new Stack<>();
     private static boolean inverted = false;
     public static int time = 0;
     public static int FPS = 60;
     public static int[] positionsX = new int[0];
     public static int[] positionsY = new int[0];
-
     public static long frameTime = 0;
 
     public static void main(String args[]) {
+        p.moveBy(0, 100);
         frame = new JFrame();
-
-        canvas = new Canvas();
-        canvas.setSize(700, 550);
-        canvas.setBackground(BG_COLOR);
-
+        
+        frame.setSize(700, 550);
         frame.setLocation(200, 50);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
-
-        frame.add(canvas);
-        frame.pack();
+        frame.setBackground(BG_COLOR);
         frame.setVisible(true);
-
-        canvas.addKeyListener(new GameKeyListener(p));
+        
+        frame.addKeyListener(new GameKeyListener(p));
         frame.requestFocus();
-        canvas.requestFocusInWindow();
-
         while(true) {
             frameTime = System.currentTimeMillis();
             handleGraphics();
@@ -56,21 +50,16 @@ public class Main {
     private static void handleGraphics() {
         int x = 0;
         int y = 0;
-        Graphics g = canvas.getGraphics();
-
+        g = frame.getGraphics();
         g.clearRect(0, 0, 700, 550);
         if(p.getX() <= 200 && p.getX() >= 100 && p.getY() >= 30 && p.getY() <= 80){
             inverted = inverted ? false : true;
 
             positionsX = new int[time];
             positionsY = new int[time];
-            Stack<Integer> temp = new Stack<Integer>();
-            for(int i = 0;i < time*2;i++){
-                temp.push(positions.pop());
-            }
-            for(int i = 0;i < time;i++){
-                positionsX[i] = temp.pop();
-                positionsY[i] = temp.pop();
+            for(int i = time-1;i >= 0;i--){
+                positionsY[i] = positions.pop();
+                positionsX[i] = positions.pop();
             }
             p.reset();
         }
@@ -88,9 +77,7 @@ public class Main {
             positions.push(p.getX());
             positions.push(p.getY());
         }
-
-        drawProgress(g, time, 1200);
-
+        drawProgress(time, 1200);
         try {
             long drawingTime = System.currentTimeMillis() - frameTime;
             frame.setTitle("Time Inverter | " + (inverted ? "Remaining" : "Elapsed") + "Time: "+time/60+"s");
@@ -119,18 +106,19 @@ public class Main {
         g.fillRect(x, y, width, height);
     }
 
-    private static void drawProgress(Graphics g, int c, int total){
+    private static void drawProgress(int c, int total) {
         g.setColor(BG_2_COLOR);
         g.fillRect(0, 0, 700, 100);
-        g.setColor(Color.CYAN);
+        g.setColor(Color.GREEN);
         int percentCompleted = (int)(c/(double)(total)*100);
+
         percentCompleted = percentCompleted > 100 ? 100 : percentCompleted;
         for(int i = 0;i <= percentCompleted;i++) {
-            g.fillRect(25+(i*5), 25, 3, 5);
+            g.fillRect(25+(i*5), 60, 3, 5);
         }
         g.setColor(Color.GRAY);
         for(int i = percentCompleted+1;i <= 100;i++) {
-            g.fillRect(25+(i*5), 25, 3, 5);
+            g.fillRect(25+(i*5), 60, 3, 5);
         }
     }
 }
