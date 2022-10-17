@@ -1,5 +1,19 @@
 # time-inverter
+## Description
+This is a prototype of a game in which you can change the direction through which you travel through time in. Check out the [latest release](https://github.com/keshuook/time-inverter-prototype/releases/). 
+<hr>
+## Alpha-1.1.1
+To invert the direction of time, I convert it to an array. In [Prototype 2](https://github.com/keshuook/time-inverter-prototype#prototype-2) I achieved this by using a temp stack to help reverse the original stack. I now realised that I could just directly copy the stack backward into the array like in the following code.
+```java
+positionsX = new int[time];
+positionsY = new int[time];
+for(int i = time-1;i >= 0;i--){
+  positionsY[i] = positions.pop();
+  positionsX[i] = positions.pop();
+}
+```
 
+## History
 ## Alpha-1.1.0
 A collision code was built into the game. In the `moveBy` function of the `Position` class, the x and y variables are only editted if no collisions occur with any thing in the level array.
 ```java
@@ -27,23 +41,6 @@ private static void drawProgress(Graphics g, int c, int total){
   g.setColor(Color.GRAY);
   for(int i = percentCompleted+1;i <= 100;i++) {
     g.fillRect(25+(i*5), 25, 3, 5);
-  }
-}
-```
-
-## History
-## Prototype 1
-This is a prototype of a game which inverts time. Using stacks in java from `java.util.Stack` every movement played by the player is recorded and pushed to the stack. If not inverted, the x coordinate followed by the y coordinate is pushed to the stack. On time inversion, a rectangle is drawn from the variables of the stack by popping them (y first and then x).
-```java
-private static Stack<Integer> positions = new Stack<>();
-.....
-void main(){
-  if(inverted) {
-    int tempy = positions.pop();
-    fillRectangle(g, -positions.pop()-10, -tempy-10, 20, 20, BG_2_COLOR);
-  }else{
-    positions.push(p.getX());
-    positions.push(p.getY());
   }
 }
 ```
@@ -78,4 +75,21 @@ if(condition){
      p.reset();
 }
 ```
-The whole code can be found in this repository.
+
+## Prototype 1
+This is a prototype of a game which inverts time. Using stacks in java from `java.util.Stack` every movement played by the player is recorded and pushed to the stack. If not inverted, the x coordinate followed by the y coordinate is pushed to the stack. On time inversion, a rectangle is drawn from the variables of the stack by popping them (y first and then x).
+```java
+private static Stack<Integer> positions = new Stack<>();
+.....
+void main(){
+  if(inverted) {
+    int tempy = positions.pop();
+    fillRectangle(g, -positions.pop()-10, -tempy-10, 20, 20, BG_2_COLOR);
+  }else{
+    positions.push(p.getX());
+    positions.push(p.getY());
+  }
+}
+```
+
+**The whole code can be found in this repository.**
