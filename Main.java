@@ -22,11 +22,11 @@ public class Main {
             -250, 300, 530, 30};
     private static Stack<Integer> positions = new Stack<>();
     private static boolean inverted = false;
-    public static int time = 0;
-    public static int FPS = 60;
-    public static int[] positionsX = new int[0];
-    public static int[] positionsY = new int[0];
-    public static long frameTime = 0;
+    private static int time = 0;
+    private static int FPS = 30;
+    private static int[] positionsX = new int[0];
+    private static int[] positionsY = new int[0];
+    private static long frameTime = 0;
 
     public static void main(String args[]) {
         p.moveBy(0, 100);
@@ -77,17 +77,17 @@ public class Main {
             positions.push(p.getX());
             positions.push(p.getY());
         }
-        drawProgress(time, 1200);
+        drawProgress(time, 600);
         try {
             long drawingTime = System.currentTimeMillis() - frameTime;
-            frame.setTitle("Time Inverter | " + (inverted ? "Remaining" : "Elapsed") + "Time: "+time/60+"s");
+            frame.setTitle("Time Inverter | " + (inverted ? "Remaining" : "Elapsed") + "Time: "+time/FPS+"s");
             Thread.sleep((1000/FPS)-drawingTime);
         }
         catch (InterruptedException ie) {
             ie.printStackTrace();
         }
         catch (IllegalArgumentException iae) {
-            FPS -= 5;
+            System.out.println("[Warn] The game is not able to render at "+FPS+" FPS."); 
         }
     }
 
