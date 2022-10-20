@@ -2,6 +2,32 @@
 ## Description
 This is a prototype of a game in which you can change the direction through which you travel through time in. Check out the [latest release](https://github.com/keshuook/time-inverter-prototype/releases/). 
 
+## Alpha-1.1.2
+If the computer can't handle rendering a warning is given.
+```java
+// Code for rendering
+// In main method.
+while(true) {
+  frameTime = System.currentTimeMillis();
+  handleGraphics();
+}
+```
+```java
+// In handleGraphics method
+try {
+  long drawingTime = System.currentTimeMillis() - frameTime;
+  Thread.sleep((1000/FPS)-drawingTime);
+}
+catch (InterruptedException ie) {
+  ie.printStackTrace();
+}
+catch (IllegalArgumentException iae) {
+  System.out.println("[Warn] The game is not able to render at "+FPS+" FPS."); 
+}
+// FPS is an integer set to 30
+```
+
+## History
 ## Alpha-1.1.1
 To invert the direction of time, I convert it to an array. In [Prototype 2](https://github.com/keshuook/time-inverter-prototype#prototype-2) I achieved this by using a temp stack to help reverse the original stack. I now realised that I could just directly copy the stack backward into the array like in the following code.
 ```java
@@ -12,8 +38,6 @@ for(int i = time-1;i >= 0;i--){
   positionsX[i] = positions.pop();
 }
 ```
-
-## History
 ## Alpha-1.1.0
 A collision code was built into the game. In the `moveBy` function of the `Position` class, the x and y variables are only editted if no collisions occur with any thing in the level array.
 ```java
