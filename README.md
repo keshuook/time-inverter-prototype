@@ -1,7 +1,38 @@
 # time-inverter
 ## Description
 This is a prototype of a game in which you can change the direction through which you travel through time in. Check out the [latest release](https://github.com/keshuook/time-inverter-prototype/releases/). 
-
+# Alpha-1.2.0
+Up until [Alpha-1.1.2](https://github.com/keshuook/time-inverter-prototype#alpha-112) you could only invert the direction through which you travel through time in once. Now you can invert this as many times as you want (its limited to three for now). If you are going to invert your time, arrays `positionsX[n]` and `positionsY[n]` will be created with a size of time. Then the stack `positions` will be copied into them. (This stack stores both the x and the y values).
+If you are going to uninvert yourself, the arrays will be of length the sum of half the size of the positions stack and time. These arrays will be added forwards. The code is as follows.
+```java
+inverted = inverted ? false : true;
+int i;
+if(inverted) {
+  positionsX[numberOfInversions] = new int[time];
+  positionsY[numberOfInversions] = new int[time];
+  for(i = time-1;!positions.isEmpty();i--){
+    positionsY[numberOfInversions][i] = positions.pop();
+    positionsX[numberOfInversions][i] = positions.pop();
+  }
+  for(int j = i;j >= 0;j--){
+    positionsY[numberOfInversions][j] = 2000;
+    positionsX[numberOfInversions][j] = 2000;
+  }
+}else{
+  int size = time + positions.size()/2;
+  positionsX[numberOfInversions] = new int[size];
+  positionsY[numberOfInversions] = new int[size];
+  for(i = time;!positions.isEmpty();i++){
+    positionsY[numberOfInversions][i] = positions.pop();
+    positionsX[numberOfInversions][i] = positions.pop();
+  }
+  for(int j = i;j < size;j++){
+    positionsY[numberOfInversions][j] = 2000;
+    positionsX[numberOfInversions][j] = 2000;
+  }
+}
+```
+## History
 ## Alpha-1.1.2
 If the computer can't handle rendering a warning is given.
 ```java
@@ -26,8 +57,6 @@ catch (IllegalArgumentException iae) {
 }
 // FPS is an integer set to 30
 ```
-
-## History
 ## Alpha-1.1.1
 To invert the direction of time, I convert it to an array. In [Prototype 2](https://github.com/keshuook/time-inverter-prototype#prototype-2) I achieved this by using a temp stack to help reverse the original stack. I now realised that I could just directly copy the stack backward into the array like in the following code.
 ```java
