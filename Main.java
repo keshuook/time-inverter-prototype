@@ -16,13 +16,13 @@ public class Main {
     private static Graphics g;
     private static Position p = new Position();
     public static int[] level = 
-        {-250, -300, 30, 600,
-            250, -300, 30, 600,
-            -250, -300, 500, 30,
-            -250, 300, 530, 30};
+        {-350, -150, 30, 400,
+            -350, -180, 700, 30,
+            -350, 240, 700, 30,
+            315, -150, 30, 400};
     private static Stack<Integer> positions = new Stack<>();
     private static boolean inverted = false;
-    private static int time = 0;
+    private static int time = 300;
     private static int FPS = 30;
     private static int numberOfInversions = 0;
     private static int[][] positionsX = new int[3][];
@@ -53,7 +53,8 @@ public class Main {
         int y = 0;
         g = frame.getGraphics();
         g.clearRect(0, 0, 700, 550);
-        if(p.getX() <= 200 && p.getX() >= 100 && p.getY() >= 30 && p.getY() <= 80){
+        
+        if(p.getX() >= -335 && p.getX() <= -225 && p.getY() >= -95 && p.getY() <= -35){
             inverted = inverted ? false : true;
             int i;
 
@@ -84,14 +85,13 @@ public class Main {
             numberOfInversions++;
             p.reset();
         }
-        fillRectangle(g, -220, -80, 100, 50, BG_2_COLOR);
-        fillRectangle(g, 150, -80, 100, 50, BG_2_COLOR);
-        fillRectangle(g, -200, -80, 100, 50, BG_2_COLOR);
+        fillRectangle(g, -320, -80, 100, 50, BG_2_COLOR);
+        fillRectangle(g, -320, 85, 100, 50, BG_2_COLOR);
         for(int i = 0;i < level.length;i+=4) {
             fillRectangle(g, level[i], level[i+1], level[i+2], level[i+3], FG_2_COLOR);
         }
-        g.setColor(FG_COLOR);
-        g.fillRect(340, 265, 20, 20);
+
+        fillRectangle(g, p.getX(), p.getY(), 20, 20, FG_COLOR);
 
         positions.push(p.getX());
         positions.push(p.getY());
@@ -101,7 +101,7 @@ public class Main {
 
         for(int i = 0;i < numberOfInversions;i++){
             try {
-                fillRectangle(g, -positionsX[i][time]-10, -positionsY[i][time]-10, 20, 20, FG_COLOR);
+                fillRectangle(g, positionsX[i][time], positionsY[i][time], 20, 20, FG_COLOR);
             }catch(ArrayIndexOutOfBoundsException e){}
         }
 
@@ -119,14 +119,9 @@ public class Main {
         }
     }
 
-    private static void drawRectangle(Graphics g, int x, int y, int width, int height, Color c){
-        g.setColor(c);
-        g.drawRect(350+x+p.getX(), 275+y+p.getY(), width, height);
-    }
-
     private static void fillRectangle(Graphics g, int x, int y, int width, int height, Color c){
         g.setColor(c);
-        g.fillRect(350+x+p.getX(), 275+y+p.getY(), width, height);
+        g.fillRect(350+x, 275+y, width, height);
     }
 
     private static void staticFillRectangle(Graphics g, int x, int y, int width, int height, Color c){
@@ -160,16 +155,16 @@ class GameKeyListener implements KeyListener {
     public void keyPressed (KeyEvent e) {
         switch(e.getKeyCode()){
             case 37:
-            p.moveBy(5, 0);
-            break;
-            case 38:
-            p.moveBy(0, 5);
-            break;
-            case 39:
             p.moveBy(-5, 0);
             break;
-            case 40:
+            case 38:
             p.moveBy(0, -5);
+            break;
+            case 39:
+            p.moveBy(5, 0);
+            break;
+            case 40:
+            p.moveBy(0, 5);
             break;
         }
     }
@@ -190,7 +185,7 @@ class Position {
         this.x += x;
         this.y += y;
         for(int i = 0;i < level.length;i+=4){
-            if(level[i]+this.x-10 < 0 && level[i]+this.x+10 > 0-level[i+2] && level[i+1]+this.y-10 < 0 && level[i+1]+this.y+10 > 0-level[i+3]) {
+            if(this.x >= level[i]-15 && this.x <= level[i]+level[i+2]-5 && this.y >= level[i+1]-15 && this.y <= level[i+1]+level[i+3]-5) {
                 this.x -= x;
                 this.y -= y;
             }
@@ -206,7 +201,7 @@ class Position {
     }
 
     public void reset(){
-        this.x = -200;
-        this.y = 60;
+        this.x = -320;
+        this.y = 100;
     }
 }
