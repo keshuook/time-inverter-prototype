@@ -1,7 +1,23 @@
 # time-inverter
 ## Description
-This is a prototype of a game in which you can change the direction through which you travel through time in. Check out the [latest release](https://github.com/keshuook/time-inverter-prototype/releases/). 
-# Alpha-1.2.0
+This is a prototype of a game in which you can change the direction through which you travel through time in. Check out the [latest release](https://github.com/keshuook/time-inverter-prototype/releases/).
+## Alpha-1.3.0
+Instead of the whole world moving, only the box moves. (People found the earlier graphics more confusing).
+This causes the collision code from [Alpha-1.1.0](https://github.com/keshuook/time-inverter-prototype#alpha-110) alot simpler.
+```java
+int[] level = Main.level;
+this.x += x;
+this.y += y;
+for(int i = 0;i < level.length;i+=4){
+  if(this.x >= level[i]-15 && this.x <= level[i]+level[i+2]-5 && this.y >= level[i+1]-15 && this.y <= level[i+1]+level[i+3]-5) {
+    this.x -= x;
+    this.y -= y;
+  }
+}
+```
+This also causes a bunch of other changes which can be found in the [changelog](https://github.com/keshuook/time-inverter-prototype/commit/26bcb9c1c84ba5c044f8f468d2356ef84ab6363c).
+## History
+## Alpha-1.2.0
 Up until [Alpha-1.1.2](https://github.com/keshuook/time-inverter-prototype#alpha-112) you could only invert the direction through which you travel through time in once. Now you can invert this as many times as you want (its limited to three for now). If you are going to invert your time, arrays `positionsX[n]` and `positionsY[n]` will be created with a size of time. Then the stack `positions` will be copied into them. (This stack stores both the x and the y values).
 If you are going to uninvert yourself, the arrays will be of length the sum of half the size of the positions stack and time. These arrays will be added forwards. The code is as follows.
 ```java
@@ -32,7 +48,6 @@ if(inverted) {
   }
 }
 ```
-## History
 ## Alpha-1.1.2
 If the computer can't handle rendering a warning is given.
 ```java
