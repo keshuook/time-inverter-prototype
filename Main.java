@@ -15,6 +15,7 @@ public class Main {
     private static JFrame frame;
     private static Graphics g;
     private static Position p = new Position();
+    private static Coin[] coins = new Coin[10];
     public static int[] level = 
         {-350, -150, 30, 400,
             -350, -180, 700, 30,
@@ -28,6 +29,7 @@ public class Main {
     private static int[][] positionsX = new int[3][];
     private static int[][] positionsY = new int[3][];
     private static long frameTime = 0;
+    private static int score = 0;
 
     public static void main(String args[]) {
         p.reset();
@@ -39,6 +41,12 @@ public class Main {
         frame.setResizable(false);
         frame.setBackground(BG_COLOR);
         frame.setVisible(true);
+
+        for(int i = 0;i < coins.length-1;i++) {
+            coins[i] = new Coin(i*25, 0);
+        }
+        coins[9] = new Coin(225, -5);
+        coins[9].big = true;
 
         frame.addKeyListener(new GameKeyListener(p));
         frame.requestFocus();
@@ -53,37 +61,9 @@ public class Main {
         int y = 0;
         g = frame.getGraphics();
         g.clearRect(0, 0, 700, 550);
-        
-        if(p.getX() >= -335 && p.getX() <= -225 && p.getY() >= -95 && p.getY() <= -35){
-            inverted = inverted ? false : true;
-            int i;
 
-            if(inverted) {
-                positionsX[numberOfInversions] = new int[time];
-                positionsY[numberOfInversions] = new int[time];
-                for(i = time-1;!positions.isEmpty();i--){
-                    positionsY[numberOfInversions][i] = positions.pop();
-                    positionsX[numberOfInversions][i] = positions.pop();
-                }
-                for(int j = i;j >= 0;j--){
-                    positionsY[numberOfInversions][j] = 2000;
-                    positionsX[numberOfInversions][j] = 2000;
-                }
-            }else{
-                int size = time + positions.size()/2;
-                positionsX[numberOfInversions] = new int[size];
-                positionsY[numberOfInversions] = new int[size];
-                for(i = time;!positions.isEmpty();i++){
-                    positionsY[numberOfInversions][i] = positions.pop();
-                    positionsX[numberOfInversions][i] = positions.pop();
-                }
-                for(int j = i;j < size;j++){
-                    positionsY[numberOfInversions][j] = 2000;
-                    positionsX[numberOfInversions][j] = 2000;
-                }
-            }
-            numberOfInversions++;
-            p.reset();
+        if(p.getX() >= -335 && p.getX() <= -225 && p.getY() >= -95 && p.getY() <= -35){
+            invertTime();
         }
         fillRectangle(g, -320, -80, 100, 50, BG_2_COLOR);
         fillRectangle(g, -320, 85, 100, 50, BG_2_COLOR);
@@ -105,6 +85,8 @@ public class Main {
             }catch(ArrayIndexOutOfBoundsException e){}
         }
 
+        handleCoins();
+
         drawProgress(time, 600);
         try {
             long drawingTime = System.currentTimeMillis() - frameTime;
@@ -116,6 +98,56 @@ public class Main {
         }
         catch (IllegalArgumentException iae) {
             System.out.println("[Warn] The game is not able to render at "+FPS+" FPS."); 
+        }
+    }
+
+    private static void invertTime() {
+        inverted = inverted ? false : true;
+        int i;
+
+        if(inverted) {
+            positionsX[numberOfInversions] = new int[time];
+            positionsY[numberOfInversions] = new int[time];
+            for(i = time-1;!positions.isEmpty();i--){
+                positionsY[numberOfInversions][i] = positions.pop();
+                positionsX[numberOfInversions][i] = positions.pop();
+            }
+            for(int j = i;j >= 0;j--){
+                positionsY[numberOfInversions][j] = 2000;
+                positionsX[numberOfInversions][j] = 2000;
+            }
+        }else{
+            int size = time + positions.size()/2;
+            positionsX[numberOfInversions] = new int[size];
+            positionsY[numberOfInversions] = new int[size];
+            for(i = time;!positions.isEmpty();i++){
+                positionsY[numberOfInversions][i] = positions.pop();
+                positionsX[numberOfInversions][i] = positions.pop();
+            }
+            for(int j = i;j < size;j++){
+                positionsY[numberOfInversions][j] = 2000;
+                positionsX[numberOfInversions][j] = 2000;
+            }
+        }
+        numberOfInversions++;
+        p.reset();
+    }
+
+    private static void handleCoins() {
+        for(int i = 0;i < coins.length;i++) {
+            if(coins[i].isCollidingWith(p)) {
+                if(coins[i].big) {
+                    invertTime();
+                    coins[i].setCollectedForever();
+                }
+                coins[i].collected(true);
+                if(!coins[i].big) coins[i].setCollectedAt(time, inverted);
+            }
+            int[] collected = coins[i].getCollectedAt();
+            if(time < collected[0] && time > collected[1]) {
+                coins[i].collected(false);
+                coins[i].render(g);
+            }
         }
     }
 
@@ -203,5 +235,53 @@ class Position {
     public void reset(){
         this.x = -320;
         this.y = 100;
+    }
+}
+class Coin {
+    private int x,y;
+    private int[] collectedAt = {2000, -1};
+    private boolean collected = false;
+    public boolean big = false;
+    public Coin(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public void render(Graphics g) {
+        if(collected) return;
+        if(big){
+            g.setColor(Color.CYAN);
+            g.fillOval(this.x+350, this.y+275, 20, 20);
+        }else{
+            g.setColor(Color.YELLOW);
+            g.fillOval(this.x+350, this.y+275, 10, 10);
+        }
+    }
+
+    public boolean isCollidingWith(Position p) {
+        if(collected) return false;
+        int max = this.big ? 15 : 5;
+        return p.getX() >= this.x-15 && p.getX() <= this.x+max && p.getY() >= this.y-15 && p.getY() <= this.y+max;
+    }
+
+    public void collected(boolean isCollected) {
+        this.collected = isCollected;
+    }
+
+    public boolean collected(){
+        return this.collected;
+    }
+
+    public void setCollectedAt(int time, boolean inverted) {
+        this.collectedAt[inverted? 1 : 0] = time;
+    }
+
+    public void setCollectedForever(){
+        this.collectedAt[0] = -1;
+        this.collectedAt[1] = 20000;
+    }
+
+    public int[] getCollectedAt() {
+        return this.collectedAt;
     }
 }
