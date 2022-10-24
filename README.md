@@ -1,6 +1,27 @@
 # time-inverter
 ## Description
 This is a prototype of a game in which you can change the direction through which you travel through time in. Check out the [latest release](https://github.com/keshuook/time-inverter-prototype/releases/).
+## Alpha-1.3.1
+Now coins can be collected. A coin class was implemented for this. An array of coins was created for this. A special coin for inverting time was created.
+```java
+// Code for collecting coins.
+for(int i = 0;i < coins.length;i++) {
+  if(coins[i].isCollidingWith(p)) {
+    if(coins[i].big) {
+      invertTime();
+      coins[i].setCollectedForever();
+    }
+    coins[i].collected(true);
+    if(!coins[i].big) coins[i].setCollectedAt(time, inverted);
+  }
+  int[] collected = coins[i].getCollectedAt();
+  if(time < collected[0] && time > collected[1]) {
+    coins[i].collected(false);
+    coins[i].render(g);
+  }
+}
+```
+## History
 ## Alpha-1.3.0
 Instead of the whole world moving, only the box moves. (People found the earlier graphics more confusing).
 This causes the collision code from [Alpha-1.1.0](https://github.com/keshuook/time-inverter-prototype#alpha-110) alot simpler.
@@ -16,7 +37,6 @@ for(int i = 0;i < level.length;i+=4){
 }
 ```
 This also causes a bunch of other changes which can be found in the [changelog](https://github.com/keshuook/time-inverter-prototype/commit/26bcb9c1c84ba5c044f8f468d2356ef84ab6363c).
-## History
 ## Alpha-1.2.0
 Up until [Alpha-1.1.2](https://github.com/keshuook/time-inverter-prototype#alpha-112) you could only invert the direction through which you travel through time in once. Now you can invert this as many times as you want (its limited to three for now). If you are going to invert your time, arrays `positionsX[n]` and `positionsY[n]` will be created with a size of time. Then the stack `positions` will be copied into them. (This stack stores both the x and the y values).
 If you are going to uninvert yourself, the arrays will be of length the sum of half the size of the positions stack and time. These arrays will be added forwards. The code is as follows.
