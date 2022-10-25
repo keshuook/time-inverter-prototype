@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
+import java.awt.Font;
 
 import java.util.Stack;
 
@@ -12,6 +13,9 @@ public class Main {
     static final Color FG_COLOR = new Color(231, 246, 242);
     static final Color BG_2_COLOR = new Color(57, 91, 100);
     static final Color FG_2_COLOR = new Color(165, 201, 202);
+    static final Font FONT = new Font("Arial", Font.CENTER_BASELINE, 25);
+    static final int MAX_INV = 1;
+    
     private static JFrame frame;
     private static Graphics g;
     private static Position p = new Position();
@@ -26,8 +30,8 @@ public class Main {
     private static int time = 300;
     private static int FPS = 30;
     private static int numberOfInversions = 0;
-    private static int[][] positionsX = new int[3][];
-    private static int[][] positionsY = new int[3][];
+    private static int[][] positionsX = new int[MAX_INV][];
+    private static int[][] positionsY = new int[MAX_INV][];
     private static long frameTime = 0;
     private static int score = 0;
 
@@ -50,6 +54,10 @@ public class Main {
 
         frame.addKeyListener(new GameKeyListener(p));
         frame.requestFocus();
+
+        g = frame.getGraphics();
+        g.setFont(FONT);
+
         while(true) {
             frameTime = System.currentTimeMillis();
             handleGraphics();
@@ -57,16 +65,8 @@ public class Main {
     }
 
     private static void handleGraphics() {
-        int x = 0;
-        int y = 0;
-        g = frame.getGraphics();
-        g.clearRect(0, 0, 700, 550);
+        g.clearRect(0, 100, 700, 450);
 
-        if(p.getX() >= -335 && p.getX() <= -225 && p.getY() >= -95 && p.getY() <= -35){
-            invertTime();
-        }
-        fillRectangle(g, -320, -80, 100, 50, BG_2_COLOR);
-        fillRectangle(g, -320, 85, 100, 50, BG_2_COLOR);
         for(int i = 0;i < level.length;i+=4) {
             fillRectangle(g, level[i], level[i+1], level[i+2], level[i+3], FG_2_COLOR);
         }
@@ -86,8 +86,9 @@ public class Main {
         }
 
         handleCoins();
-
+        handleScore();
         drawProgress(time, 600);
+        
         try {
             long drawingTime = System.currentTimeMillis() - frameTime;
             frame.setTitle("Time Inverter | " + (inverted ? "Remaining" : "Elapsed") + "Time: "+time/FPS+"s");
@@ -130,7 +131,6 @@ public class Main {
             }
         }
         numberOfInversions++;
-        p.reset();
     }
 
     private static void handleCoins() {
@@ -141,7 +141,10 @@ public class Main {
                     coins[i].setCollectedForever();
                 }
                 coins[i].collected(true);
-                if(!coins[i].big) coins[i].setCollectedAt(time, inverted);
+                if(!coins[i].big) {
+                    coins[i].setCollectedAt(time, inverted);
+                    score+= 20;
+                }
             }
             int[] collected = coins[i].getCollectedAt();
             if(time < collected[0] && time > collected[1]) {
@@ -151,19 +154,19 @@ public class Main {
         }
     }
 
+    private static void handleScore(){
+        g.setColor(BG_2_COLOR);
+        g.fillRect(0, 0, 700, 100);
+        g.setColor(FG_2_COLOR);
+        g.drawString(score+"", 600, 60);
+    }
+
     private static void fillRectangle(Graphics g, int x, int y, int width, int height, Color c){
         g.setColor(c);
         g.fillRect(350+x, 275+y, width, height);
     }
 
-    private static void staticFillRectangle(Graphics g, int x, int y, int width, int height, Color c){
-        g.setColor(c);
-        g.fillRect(x, y, width, height);
-    }
-
     private static void drawProgress(int c, int total) {
-        g.setColor(BG_2_COLOR);
-        g.fillRect(0, 0, 700, 100);
         g.setColor(Color.GREEN);
         int percentCompleted = (int)(c/(double)(total)*100);
 
