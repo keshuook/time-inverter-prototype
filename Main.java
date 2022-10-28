@@ -14,17 +14,21 @@ public class Main {
     static final Color BG_2_COLOR = new Color(57, 91, 100);
     static final Color FG_2_COLOR = new Color(165, 201, 202);
     static final Font FONT = new Font("Arial", Font.CENTER_BASELINE, 25);
-    static final int MAX_INV = 1;
-    
+    static final int MAX_INV = 4;
+
     private static JFrame frame;
     private static Graphics g;
     private static Position p = new Position();
-    private static Coin[] coins = new Coin[10];
+    private static Coin[] coins = new Coin[44];
     public static int[] level = 
-        {-350, -150, 30, 400,
-            -350, -180, 700, 30,
-            -350, 240, 700, 30,
-            315, -150, 30, 400};
+        {0, 100, 30, 450,
+            0, 100, 700, 30,
+            0, 520, 700, 30,
+            670, 100, 30, 450,
+            80, 180, 245, 120,
+            80, 350, 245, 120,
+            375, 180, 245, 120,
+            375, 350, 245, 120};
     private static Stack<Integer> positions = new Stack<>();
     private static boolean inverted = false;
     private static int time = 300;
@@ -32,11 +36,11 @@ public class Main {
     private static int numberOfInversions = 0;
     private static int[][] positionsX = new int[MAX_INV][];
     private static int[][] positionsY = new int[MAX_INV][];
+    private static boolean[] pastBox = new boolean[MAX_INV];
     private static long frameTime = 0;
     private static int score = 0;
 
-    public static void main(String args[]) {
-        p.reset();
+    public static void main(String args[]) throws Exception {
         frame = new JFrame();
 
         frame.setSize(700, 550);
@@ -46,11 +50,21 @@ public class Main {
         frame.setBackground(BG_COLOR);
         frame.setVisible(true);
 
-        for(int i = 0;i < coins.length-1;i++) {
-            coins[i] = new Coin(i*25, 0);
+        for(int i = 0;i < 20;i+=2) {
+            coins[i] = new Coin((i*29)-265, -145);
+            coins[i+1] = new Coin((i*29)-265, 235);
         }
-        coins[9] = new Coin(225, -5);
-        coins[9].big = true;
+        for(int i = 0;i < 20;i+=2) {
+            coins[i+20] = new Coin(310, (i*18)-115);
+            coins[i+21] = new Coin(-320, (i*18)-115);
+        }
+        coins[40] = new Coin(-320, -145);
+        coins[41] = new Coin(300, -145);
+        coins[42] = new Coin(-320, 225);
+        coins[43] = new Coin(300, 225);
+        for(int i = 40;i < 44;i++) {
+            coins[i].big = true;
+        }
 
         frame.addKeyListener(new GameKeyListener(p));
         frame.requestFocus();
@@ -64,11 +78,12 @@ public class Main {
         }
     }
 
-    private static void handleGraphics() {
+    private static void handleGraphics() throws Exception {
         g.clearRect(0, 100, 700, 450);
 
+        g.setColor(FG_2_COLOR);
         for(int i = 0;i < level.length;i+=4) {
-            fillRectangle(g, level[i], level[i+1], level[i+2], level[i+3], FG_2_COLOR);
+            g.fillRect(level[i], level[i+1], level[i+2], level[i+3]);
         }
 
         fillRectangle(g, p.getX(), p.getY(), 20, 20, FG_COLOR);
@@ -81,14 +96,21 @@ public class Main {
 
         for(int i = 0;i < numberOfInversions;i++){
             try {
-                fillRectangle(g, positionsX[i][time], positionsY[i][time], 20, 20, FG_COLOR);
+                int x = positionsX[i][time],y = positionsY[i][time];
+                fillRectangle(g, x, y, 20, 20, FG_COLOR);
+                if(pastBox[i] && p.isTouchingSquare(x, y, 20)) {
+                    throw new Exception("Game over");   
+                }
+                if(!p.isTouchingSquare(x, y, 20)){
+                    pastBox[i] = true;
+                }
             }catch(ArrayIndexOutOfBoundsException e){}
         }
 
         handleCoins();
         handleScore();
         drawProgress(time, 600);
-        
+
         try {
             long drawingTime = System.currentTimeMillis() - frameTime;
             frame.setTitle("Time Inverter | " + (inverted ? "Remaining" : "Elapsed") + "Time: "+time/FPS+"s");
@@ -121,13 +143,13 @@ public class Main {
             int size = time + positions.size()/2;
             positionsX[numberOfInversions] = new int[size];
             positionsY[numberOfInversions] = new int[size];
-            for(i = time;!positions.isEmpty();i++){
+            for(i = 0;i < time;i++) {
+                positionsY[numberOfInversions][i] = 2000;
+                positionsX[numberOfInversions][i] = 2000;
+            }
+            for(i = time;i < size;i++){
                 positionsY[numberOfInversions][i] = positions.pop();
                 positionsX[numberOfInversions][i] = positions.pop();
-            }
-            for(int j = i;j < size;j++){
-                positionsY[numberOfInversions][j] = 2000;
-                positionsX[numberOfInversions][j] = 2000;
             }
         }
         numberOfInversions++;
@@ -136,12 +158,12 @@ public class Main {
     private static void handleCoins() {
         for(int i = 0;i < coins.length;i++) {
             if(coins[i].isCollidingWith(p)) {
+                coins[i].collected(true);
                 if(coins[i].big) {
                     invertTime();
                     coins[i].setCollectedForever();
-                }
-                coins[i].collected(true);
-                if(!coins[i].big) {
+                }else {
+                    System.out.println(coins[i].collected());
                     coins[i].setCollectedAt(time, inverted);
                     score+= 20;
                 }
@@ -149,8 +171,10 @@ public class Main {
             int[] collected = coins[i].getCollectedAt();
             if(time < collected[0] && time > collected[1]) {
                 coins[i].collected(false);
-                coins[i].render(g);
+            }else{
+                coins[i].collected(true);
             }
+            coins[i].render(g);
         }
     }
 
@@ -220,7 +244,7 @@ class Position {
         this.x += x;
         this.y += y;
         for(int i = 0;i < level.length;i+=4){
-            if(this.x >= level[i]-15 && this.x <= level[i]+level[i+2]-5 && this.y >= level[i+1]-15 && this.y <= level[i+1]+level[i+3]-5) {
+            if(this.x >= level[i]-365 && this.x <= level[i]+level[i+2]-355 && this.y >= level[i+1]-290 && this.y <= level[i+1]+level[i+3]-280) {
                 this.x -= x;
                 this.y -= y;
             }
@@ -235,9 +259,8 @@ class Position {
         return this.y;
     }
 
-    public void reset(){
-        this.x = -320;
-        this.y = 100;
+    public boolean isTouchingSquare(int x, int y, int scale) {
+        return this.x >= x-15 && this.x <= x+scale && this.y >= y-15 && this.y <= y+scale;
     }
 }
 class Coin {
