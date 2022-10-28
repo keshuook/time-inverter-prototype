@@ -1,6 +1,23 @@
 # time-inverter
 ## Description
 This is a prototype of a game in which you can change the direction through which you travel through time in. Check out the [latest release](https://github.com/keshuook/time-inverter-prototype/releases/).
+## Beta-1.3.2
+A glitch in the code from [Alpha-1.2.0](https://github.com/keshuook/time-inverter-prototype#alpha-120) has been fixed. The code in the else block should be as follows:
+```java
+// Inversion code if not inverted
+int size = time + positions.size()/2;
+positionsX[numberOfInversions] = new int[size];
+positionsY[numberOfInversions] = new int[size];
+for(i = 0;i < time;i++) {
+  positionsY[numberOfInversions][i] = 2000;
+  positionsX[numberOfInversions][i] = 2000;
+}
+for(i = time;i < size;i++){
+  positionsY[numberOfInversions][i] = positions.pop();
+  positionsX[numberOfInversions][i] = positions.pop();
+}
+```
+## History
 ## Alpha-1.3.1
 Now coins can be collected. A coin class was implemented for this. An array of coins was created for this. A special coin for inverting time was created.
 ```java
@@ -21,7 +38,6 @@ for(int i = 0;i < coins.length;i++) {
   }
 }
 ```
-## History
 ## Alpha-1.3.0
 Instead of the whole world moving, only the box moves. (People found the earlier graphics more confusing).
 This causes the collision code from [Alpha-1.1.0](https://github.com/keshuook/time-inverter-prototype#alpha-110) alot simpler.
