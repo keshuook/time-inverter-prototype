@@ -1,6 +1,7 @@
 # time-inverter
 ## Description
-This is a prototype of a game in which you can change the direction through which you travel through time in. Check out the [latest release](https://github.com/keshuook/time-inverter-prototype/releases/).
+In this game, you are able to travel through time in any direction (foward and backward). Normally you travel fowards in time. This means if you look at a clock, every second its hand will move by one second. If you were to travel backwards, you would see the hand going anti-clockwise. This game allows you to travel backwards in time and see your past selves. This game was inspired by the movie "Tenet". Your objective is to collect as many yellow coins as possible in any time (past or present). Avoid colliding with your past self; it will cause you to lose. Make sure you don't run out of time in either direction. Time and yourself are your enemies!
+Check out the [latest release](https://github.com/keshuook/time-inverter-prototype/releases/).
 ## Beta-1.3.2
 A glitch in the code from [Alpha-1.2.0](https://github.com/keshuook/time-inverter-prototype#alpha-120) has been fixed. The code in the else block should be as follows:
 ```java
